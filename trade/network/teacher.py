@@ -57,7 +57,6 @@ class Teacher_2_Extractor(nn.Module):
         self.dnn = nn.Sequential(nn.Linear(2, 64), nn.ReLU(), nn.Linear(64, 64), nn.ReLU(),)
         self.cnn = nn.Sequential(nn.Conv1d(self.cnn_shape[1], 3, 1), nn.ReLU(), nn.Conv1d(3, 3, 3), nn.ReLU(),)
         self.raw_fc = nn.Sequential(nn.Linear((self.cnn_shape[0] - 2) * 3, 64), nn.ReLU(), nn.Linear(64, 64), nn.ReLU(),)
-        self.maxPool = nn.MaxPool1d(kernel_size=1)
 
         self.fc = nn.Sequential(
             nn.Linear(hidden_size * 2, hidden_size), nn.ReLU(), nn.Linear(hidden_size, 32), nn.ReLU(),
@@ -70,8 +69,7 @@ class Teacher_2_Extractor(nn.Module):
         raw_in = inp[:, : 6 * 240].reshape(-1, 30, 6).transpose(1, 2) ## public part of state
         dnn_in = inp[:, 6 * 240 : -1].reshape(batch_size, -1, 2) ## private part of state
         cnn_out = self.cnn(raw_in).view(batch_size, 8, -1)
-        rnn_in = self.maxPool(cnn_out)
-        rnn_in = self.raw_fc(rnn_in)
+        rnn_in = self.raw_fc(cnn_out)
         rnn2_in = self.dnn(dnn_in)
         rnn2_out = self.rnn2(rnn2_in)[0]
         rnn_out = self.rnn(rnn_in)[0][:, -1, :]
