@@ -153,7 +153,7 @@ class PPO_sup(PGPolicy):
                     vf_loss = torch.max(vf1, vf2).mean()
                 else:
                     vf_loss = (b.returns - value).pow(2).mean()
-                b.teacher_action = torch.clamp(b.teacher_action, 0, 4)
+                b.teacher_action = torch.clamp(b.teacher_action, 0, 6)
                 supervision_loss = F.nll_loss(logits.log(), b.teacher_action)
                 supervision_losses.append(supervision_loss.item())
                 kl = torch.distributions.kl.kl_divergence(self.dist_fn(b.old_logits), dist)
